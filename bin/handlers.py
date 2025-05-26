@@ -37,14 +37,25 @@ async def new_question(message: Message, state: FSMContext):
     await state.set_state(Quiz.await_answer)
 
     log.debug(f"For user {message.from_user.id} new question: {question}")
-    await message.answer(question.question)
+    await message.answer(f"Вопрос: {question.question}")
+
+
+@router.message(F.text == "Сдаться", Quiz.await_answer)
+async def give_up(message: Message, state: FSMContext):
+    data = await state.get_data()
+    question = Question(**data["question"])
+    await state.clear()
+
+    log.debug(f"For user {message.from_user.id} give up: {question}")
+    await message.answer(f"Правильный ответ: {question.answer}")
+
+    await new_question(message, state)
 
 
 @router.message(F.text, Quiz.await_answer)
 async def quiz_answer(message: Message, state: FSMContext):
     data = await state.get_data()
     question = Question(**data["question"])
-    await state.clear()
 
     real_answer = question.answer.lower()
     root_answer = re.search(r"[\w\s,]+", real_answer).group()
@@ -52,6 +63,7 @@ async def quiz_answer(message: Message, state: FSMContext):
 
     if root_answer == user_answer:
         message_text = "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
+        await state.clear()
     else:
         message_text = "Неправильно… Попробуешь ещё раз?"
 
@@ -59,8 +71,3 @@ async def quiz_answer(message: Message, state: FSMContext):
         f"For user {message.from_user.id} answer: {message.text}, right answer: {question.answer}"
     )
     await message.answer(message_text)
-
-
-@router.message(F.text)
-async def echo(message: Message):
-    await message.answer(message.text)
