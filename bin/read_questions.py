@@ -1,6 +1,8 @@
+import re
 from dataclasses import dataclass
 from pathlib import Path
 import logging
+import random
 from typing import Generator
 
 log = logging.getLogger(__name__)
@@ -8,20 +10,25 @@ log = logging.getLogger(__name__)
 
 @dataclass(slots=True)
 class Question:
-    question: str = ''
-    answer: str = ''
-    comment: str = ''
-    source: str = ''
-    author: str = ''
+    question: str = ""
+    answer: str = ""
+    comment: str = ""
+    source: str = ""
+    author: str = ""
+
+
+def get_random_question():
+    for file in read_files():
+        return random.choice(parse_file(file))
 
 
 def read_files() -> Generator[str, None, None]:
-    base_path = Path(__file__).parent
+    base_path = Path(__file__).parent.parent
     questions_path = base_path / "questions"
 
     if not all((questions_path.exists(), questions_path.is_dir())):
         log.error(f"Questions path {questions_path} does not exist")
-        return
+        exit(1)
 
     log.debug(f"Starting to read files from {questions_path}")
 
@@ -32,8 +39,8 @@ def read_files() -> Generator[str, None, None]:
             continue
 
         counter += 1
-        with open(file, "r", encoding="KOI8-R") as file:
-            yield file.read()
+        with open(file, "r", encoding="KOI8-R") as open_file:
+            yield open_file.read()
 
     log.debug(f"Finished reading files from {questions_path}")
     log.info(f"Read {counter} files")
@@ -57,7 +64,7 @@ def parse_file(text: str) -> list[Question]:
             continue
 
         head, body = head_and_body
-        header = ''.join((char.lower() for char in head if char.isalpha()))
+        header = re.search(r"\w+", head.lower()).group()
         if header not in key_words:
             continue
 
@@ -73,14 +80,3 @@ def parse_file(text: str) -> list[Question]:
 
     log.debug(f"Found {len(questions)} questions")
     return questions
-
-
-def main():
-    for file in read_files():
-        print(parse_file(file))
-        return
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    main()
