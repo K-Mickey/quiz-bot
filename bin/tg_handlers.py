@@ -62,7 +62,9 @@ async def quiz_answer(message: Message, state: FSMContext):
     user_answer = message.text.lower()
 
     if root_answer == user_answer:
-        message_text = "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
+        message_text = (
+            "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
+        )
         await state.clear()
     else:
         message_text = "Неправильно… Попробуешь ещё раз?"

@@ -7,6 +7,7 @@ dependencies = [
     "aiogram>=3.20.0.post0",
     "python-decouple>=3.8",
     "redis>=5.2.1",
+    "vkbottle>=4.5.1",
 ]
 
 [dependency-groups]
