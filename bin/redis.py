@@ -2,6 +2,7 @@ import json
 
 from redis import Redis
 
+
 class RedisStateManager:
     __instance = None
 
@@ -18,7 +19,7 @@ class RedisStateManager:
 
     def get_state(self, user_id: int) -> str | None:
         value = self.__redis.get(f"user:{user_id}:state")
-        return value.decode('utf-8') if value else None
+        return value.decode("utf-8") if value else None
 
     def set_state(self, user_id: int, state: str) -> None:
         self.__redis.set(f"user:{user_id}:state", state)
@@ -28,7 +29,7 @@ class RedisStateManager:
 
     def get_data(self, user_id: int) -> dict | None:
         value = self.__redis.get(f"user:{user_id}:data")
-        return json.loads(value.decode('utf-8')) if value else None
+        return json.loads(value.decode("utf-8")) if value else None
 
     def set_data(self, user_id: int, value: dict) -> None:
         self.__redis.set(f"user:{user_id}:data", json.dumps(value))

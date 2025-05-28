@@ -54,7 +54,6 @@ async def give_up(message: Message, state_manager: RedisStateManager):
     await new_question(message, state_manager)
 
 
-
 @labeler.message(StateRule(States.AWAIT_ANSWER))
 async def quiz_answer(message: Message, state_manager: RedisStateManager):
     bot_data = state_manager.get_data(message.from_id)

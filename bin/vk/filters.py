@@ -11,5 +11,5 @@ class StateRule(ABCRule[Message]):
 
     async def check(self, event: Message):
         state_manager = RedisStateManager(settings.REDIS_URL)
-        user_state = state_manager.get_state(event.from_id) or ''
+        user_state = state_manager.get_state(event.from_id) or ""
         return user_state == self.state

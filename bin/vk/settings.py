@@ -1,7 +1,8 @@
 from decouple import config
 
-TOKEN = config("TOKEN")
-REDIS_URL = config("REDIS_URL")
+
+TOKEN = config("VK_TOKEN")
+REDIS_URL = config("VK_REDIS_URL")
 
 LOG_LEVEL = config("LOG_LEVEL", default="INFO")
 LOG_FORMAT = config(
