@@ -1,5 +1,4 @@
 import logging
-import re
 from dataclasses import asdict
 
 from vkbottle import Keyboard
@@ -10,6 +9,7 @@ from .filters import StateRule
 from .states import States
 from ..redis import RedisStateManager
 from ..read_questions import Question, get_random_question
+from ..utils import parse_answer
 
 log = logging.getLogger(__name__)
 labeler = BotLabeler()
@@ -59,11 +59,10 @@ async def quiz_answer(message: Message, state_manager: RedisStateManager):
     bot_data = state_manager.get_data(message.from_id)
     question = Question(**bot_data or {})
 
-    real_answer = question.answer.lower()
-    root_answer = re.search(r"[\w\s,]+", real_answer).group()
-    user_answer = message.text.lower()
+    real_answer = parse_answer(question.answer)
+    user_answer = parse_answer(message.text)
 
-    if root_answer == user_answer:
+    if real_answer == user_answer:
         message_text = (
             "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
         )

@@ -1,5 +1,4 @@
 import logging
-import re
 from dataclasses import asdict
 
 from aiogram import Router, F
@@ -9,6 +8,7 @@ from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
 from ..read_questions import Question, get_random_question
 from .states import Quiz
+from ..utils import parse_answer
 
 log = logging.getLogger(__name__)
 router = Router()
@@ -57,11 +57,10 @@ async def quiz_answer(message: Message, state: FSMContext):
     data = await state.get_data()
     question = Question(**data["question"])
 
-    real_answer = question.answer.lower()
-    root_answer = re.search(r"[\w\s,]+", real_answer).group()
-    user_answer = message.text.lower()
+    real_answer = parse_answer(question.answer)
+    user_answer = parse_answer(message.text)
 
-    if root_answer == user_answer:
+    if real_answer == user_answer:
         message_text = (
             "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
         )
