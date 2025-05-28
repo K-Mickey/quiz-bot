@@ -2,7 +2,7 @@ from aiogram import Dispatcher, Bot
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand
 
-from bin.tg_handlers import router
+from .handlers import router
 
 
 async def run_bot(bot_token: str, redis_url: str):

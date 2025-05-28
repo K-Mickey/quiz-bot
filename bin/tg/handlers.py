@@ -7,8 +7,8 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
-from bin.read_questions import Question, get_random_question
-from bin.states import Quiz
+from ..read_questions import Question, get_random_question
+from .states import Quiz
 
 log = logging.getLogger(__name__)
 router = Router()
