@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 import logging
 import random
-from typing import Generator
 
 log = logging.getLogger(__name__)
 
@@ -18,11 +17,6 @@ class Question:
 
 
 def get_random_question():
-    for file in read_files():
-        return random.choice(parse_file(file))
-
-
-def read_files() -> Generator[str, None, None]:
     base_path = Path(__file__).parent.parent
     questions_path = base_path / "questions"
 
@@ -31,23 +25,23 @@ def read_files() -> Generator[str, None, None]:
         exit(1)
 
     log.debug(f"Starting to read files from {questions_path}")
+    file_path = random.choice(read_files(questions_path))
 
-    counter = 0
-    for file in questions_path.iterdir():
-        if not file.is_file():
-            log.debug(f"File {file} is not a file")
-            continue
+    with open(file_path, "r", encoding="KOI8-R") as open_file:
+        file = open_file.read()
 
-        counter += 1
-        with open(file, "r", encoding="KOI8-R") as open_file:
-            yield open_file.read()
+    return random.choice(parse_file(file))
 
-    log.debug(f"Finished reading files from {questions_path}")
-    log.info(f"Read {counter} files")
+
+def read_files(questions_path: Path) -> tuple[str, ...]:
+    all_files = tuple(file for file in questions_path.iterdir() if file.is_file())
+    count_files = len(all_files)
+    log.debug(f"Read {count_files} files")
+    return all_files
 
 
 def parse_file(text: str) -> list[Question]:
-    key_words = {
+    titles = {
         "вопрос": "question",
         "ответ": "answer",
         "комментарий": "comment",
@@ -64,16 +58,16 @@ def parse_file(text: str) -> list[Question]:
             continue
 
         head, body = head_and_body
-        header = re.search(r"\w+", head.lower()).group()
-        if header not in key_words:
+        title = re.search(r"\w+", head.lower()).group()
+        if title not in titles:
             continue
 
-        if header == "вопрос" and question.question:
+        if title == "вопрос" and question.question:
             questions.append(question)
             question = Question()
 
         body = body.replace("\n", " ")
-        setattr(question, key_words[header], body)
+        setattr(question, titles[title], body)
 
     if question.question:
         questions.append(question)
