@@ -1,8 +1,8 @@
 from vkbottle import ABCRule
 from vkbottle.bot import Message
 
-from bin import settings
-from bin.db import RedisStateManager
+from . import settings
+from ..redis import RedisStateManager
 
 
 class StateRule(ABCRule[Message]):
@@ -10,6 +10,6 @@ class StateRule(ABCRule[Message]):
         self.state = state
 
     async def check(self, event: Message):
-        state_manager = RedisStateManager(settings.VK_REDIS_URL)
+        state_manager = RedisStateManager(settings.REDIS_URL)
         user_state = state_manager.get_state(event.from_id) or ''
         return user_state == self.state

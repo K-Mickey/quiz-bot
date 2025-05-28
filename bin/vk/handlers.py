@@ -8,7 +8,7 @@ from vkbottle.framework.labeler import BotLabeler
 
 from .filters import StateRule
 from .states import States
-from ..db import RedisStateManager
+from ..redis import RedisStateManager
 from ..read_questions import Question, get_random_question
 
 log = logging.getLogger(__name__)
@@ -43,6 +43,7 @@ async def new_question(message: Message, state_manager: RedisStateManager):
 @labeler.message(StateRule(States.AWAIT_ANSWER), text="Сдаться")
 async def give_up(message: Message, state_manager: RedisStateManager):
     state_manager.delete_state(message.from_id)
+
     bot_data = state_manager.get_data(message.from_id)
     question = Question(**bot_data or {})
     state_manager.delete_data(message.from_id)
@@ -58,6 +59,7 @@ async def give_up(message: Message, state_manager: RedisStateManager):
 async def quiz_answer(message: Message, state_manager: RedisStateManager):
     bot_data = state_manager.get_data(message.from_id)
     question = Question(**bot_data or {})
+
     real_answer = question.answer.lower()
     root_answer = re.search(r"[\w\s,]+", real_answer).group()
     user_answer = message.text.lower()
