@@ -6,9 +6,11 @@
 Реализован для пользователей в ВКонтакте и Телеграм.
 
 [Ссылка на бота в ТГ](https://t.me/te67_bot)
+
 ![tg.gif](src/tg-example.gif)
 
 [Ссылка на сообщество с ботом ВК](https://vk.com/club229816609)
+
 ![vk.gif](src/vk-example.gif)
 
 
