@@ -21,8 +21,7 @@ def get_random_question():
     questions_path = base_path / "questions"
 
     if not all((questions_path.exists(), questions_path.is_dir())):
-        log.error(f"Questions path {questions_path} does not exist")
-        exit(1)
+        raise FileNotFoundError(f"Questions path {questions_path} does not exist")
 
     log.debug(f"Starting to read files from {questions_path}")
     file_path = random.choice(read_files(questions_path))
