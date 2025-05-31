@@ -32,7 +32,7 @@ async def start(message: Message):
 
 @router.message(F.text == "Новый вопрос")
 async def new_question(message: Message, state: FSMContext):
-    question: Question = get_random_question()
+    question = get_random_question()
     await state.update_data(question=asdict(question))  # noqa
     await state.set_state(Quiz.await_answer)
 

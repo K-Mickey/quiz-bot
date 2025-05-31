@@ -32,7 +32,7 @@ async def start(message: Message):
 
 @labeler.message(text="Новый вопрос")
 async def new_question(message: Message, state_manager: RedisStateManager):
-    question: Question = get_random_question()
+    question = get_random_question()
     state_manager.set_state(message.from_id, States.AWAIT_ANSWER)
     state_manager.set_data(message.from_id, asdict(question))
 
