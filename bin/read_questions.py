@@ -26,12 +26,15 @@ class Question:
             "источник": "source",
             "автор": "author",
         }
-        return cls(**{titles[title]: value for title, value in data.items() if title in titles})
+        return cls(
+            **{titles[title]: value for title, value in data.items() if title in titles}
+        )
 
 
 def get_random_question() -> Question:
     questions = get_questions()
     return random.choice(questions)
+
 
 @lru_cache(maxsize=None)
 def get_questions() -> tuple[Question, ...]:
@@ -60,16 +63,19 @@ def find_path() -> Path:
 
 
 def read_txt_files(questions_path: Path) -> tuple[str, ...]:
-    all_files = tuple(file for file in questions_path.iterdir() if file.is_file() and file.suffix == ".txt")
+    all_files = tuple(
+        file
+        for file in questions_path.iterdir()
+        if file.is_file() and file.suffix == ".txt"
+    )
     count_files = len(all_files)
     log.debug(f"Read {count_files} files")
     return all_files
 
 
 def parse_file(text: str) -> list[Question]:
-
     paragraphs = text.split("\n\n")
-    primary_title = 'вопрос'
+    primary_title = "вопрос"
 
     questions = []
     question_body = {}
