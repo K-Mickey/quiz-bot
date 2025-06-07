@@ -1,57 +1,31 @@
 import re
-from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 import logging
-import random
-from typing import Self
+from typing import Iterable
+
+from bin.redis import RedisStateManager
+from bin.tg import settings
 
 log = logging.getLogger(__name__)
 
 
-@dataclass(slots=True, frozen=True, eq=True)
-class Question:
-    question: str = ""
-    answer: str = ""
-    comment: str = ""
-    source: str = ""
-    author: str = ""
+def main() -> None:
+    database = RedisStateManager(settings.REDIS_URL)
+    file_number = question_number = 0
 
-    @classmethod
-    def from_dict(cls, data: dict[str, str]) -> Self:
-        titles = {
-            "вопрос": "question",
-            "ответ": "answer",
-            "комментарий": "comment",
-            "источник": "source",
-            "автор": "author",
-        }
-        return cls(
-            **{titles[title]: value for title, value in data.items() if title in titles}
-        )
-
-
-def get_random_question() -> Question:
-    questions = get_questions()
-    return random.choice(questions)
-
-
-@lru_cache(maxsize=None)
-def get_questions() -> tuple[Question, ...]:
-    path = find_path()
-    files = read_txt_files(path)
-
-    questions = []
-    for file in files:
+    for file in read_question_files():
         with open(file, "r", encoding="KOI8-R") as open_file:
             file = open_file.read()
-        questions += parse_file(file)
+        file_number += 1
 
-    log.info(f"Read {len(questions)} questions from {len(files)} files")
-    return tuple(questions)
+        for question in parse_file(file):
+            question_number += 1
+            # TODO: add append to database
+
+    log.info(f"Read {question_number} questions from {file_number} files")
 
 
-def find_path() -> Path:
+def read_question_files() -> Iterable:
     base_path = Path(__file__).parent.parent
     questions_path = base_path / "questions"
 
@@ -59,23 +33,19 @@ def find_path() -> Path:
         raise FileNotFoundError(f"Questions path {questions_path} does not exist")
 
     log.debug(f"Starting to read files from {questions_path}")
-    return questions_path
+
+    for file in questions_path.iterdir():
+        if file.is_file() and file.suffix == ".txt":
+            yield file
 
 
-def read_txt_files(questions_path: Path) -> tuple[str, ...]:
-    all_files = tuple(
-        file
-        for file in questions_path.iterdir()
-        if file.is_file() and file.suffix == ".txt"
-    )
-    count_files = len(all_files)
-    log.debug(f"Read {count_files} files")
-    return all_files
+def parse_file(text: str) -> list[dict]:
+    titles = {
+        "вопрос": "question",
+        "ответ": "answer",
+    }
 
-
-def parse_file(text: str) -> list[Question]:
     paragraphs = text.split("\n\n")
-    primary_title = "вопрос"
 
     questions = []
     question_body = {}
@@ -94,15 +64,16 @@ def parse_file(text: str) -> list[Question]:
             log.warning(f"Can't parse title from {head}")
             continue
 
-        if title == primary_title and primary_title in question_body:
-            questions.append(Question.from_dict(question_body))
-            question_body = {}
-
         body = body.replace("\n", " ")
-        question_body[title] = body
+        question_body[titles[title]] = body
 
-    if primary_title in question_body:
-        questions.append(Question.from_dict(question_body))
+        if len(question_body) == len(titles):
+            questions.append(question_body)
+            question_body = {}
 
     log.debug(f"Found {len(questions)} questions in file")
     return questions
+
+
+if __name__ == "__main__":
+    main()
