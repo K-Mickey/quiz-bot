@@ -4,9 +4,27 @@ services:
     container_name: tgbot_quiz
     restart: unless-stopped
     command: ["uv", "run", "tg_bot.py"]
+    networks:
+      - redis-private-net
 
   vkbot:
     build: .
     container_name: vkbot_quiz
     restart: unless-stopped
     command: ["uv", "run", "vk_bot.py"]
+    networks:
+      - redis-private-net
+
+  init-db:
+    build: .
+    container_name: init_db_quiz
+    restart: "no"
+    env_file: .env
+    command: ["uv", "run", "read_questions.py"]
+    profiles: ["init"]
+    networks:
+      - redis-private-net
+
+networks:
+  redis-private-net:
+    external: true
