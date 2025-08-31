@@ -14,3 +14,13 @@ dependencies = [
 dev = [
     "ruff>=0.11.7",
 ]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort
+]

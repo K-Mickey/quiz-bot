@@ -1,4 +1,16 @@
 services:
+  tgbot:
+    build: .
+    container_name: tgbot_quiz
+    restart: unless-stopped
+    command: ["uv", "run", "tg_bot.py"]
+
+  vkbot:
+    build: .
+    container_name: vkbot_quiz
+    restart: unless-stopped
+    command: ["uv", "run", "vk_bot.py"]
+
   redis:
     image: redis:alpine
     container_name: redis_container
